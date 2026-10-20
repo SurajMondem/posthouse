@@ -1,0 +1,19 @@
+{
+  "$comment": "Defaults for everyone. Put your own choices in posthouse.config.local.json (git-ignored); it is merged on top. API keys go in .env, never here. Every option is explained in docs/configuration.md.",
+  "voice": {
+    "provider": "auto",
+    "say": { "voice": "Samantha", "rate": 180 },
+    "kokoro": { "voice": "af_heart", "speed": 1, "dtype": "q8" },
+    "command": { "run": "", "input": "stdin", "ext": "wav" },
+    "elevenlabs": {
+      "voiceId": "",
+      "voiceName": "",
+      "modelId": "eleven_multilingual_v2",
+      "outputFormat": "mp3_44100_192",
+      "settings": { "stability": 0.5, "similarity_boost": 0.8, "style": 0, "use_speaker_boost": true }
+    },
+    "none": { "wordsPerSecond": 2.5 }
+  },
+  "align": { "whisper": "auto", "model": "", "language": "en" },
+  "taste": "taste"
+}

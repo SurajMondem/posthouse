@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: template/package-lock.json
+      - name: Library tests
+        run: npm test
+      - name: Install the template
+        run: npm --prefix template ci
+      - name: Voice (silent) → storyboard → typecheck
+        working-directory: template
+        run: |
+          npm run voice -- --provider none
+          npm run storyboard
+          npx tsc

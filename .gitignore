@@ -1,0 +1,24 @@
+node_modules
+.DS_Store
+*.log
+
+# Your secrets and your own settings
+.env
+posthouse.config.local.json
+
+# Your videos and every render stay on your machine
+videos/
+renders/
+out/
+*.mp4
+*.mov
+*.webm
+
+# Generated per video (npm run voice / npm run storyboard)
+template/narration/
+template/public/voice/
+template/src/storyboard.json
+template/posthouse.json
+
+# Local models (whisper.cpp ggml files, voice models)
+models/

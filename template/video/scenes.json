@@ -1,0 +1,40 @@
+{
+  "$comment": "THIS VIDEO: one entry per scene, in order. text = what the voice says (spell names the way they're said). cues = name → the spoken word that fires it (first match; numbers match as digits or words). captionPhrases = spoken phrase → how captions show it. The last scene may be overlay: true (drawn over the pulled-back world). Optional: voice = { provider, <provider>: { ...settings } } to override the repo config for this video; sting: false to drop the sign-off sound. The example is examples/hello-posthouse/post.md.",
+  "width": 1080,
+  "height": 1080,
+  "fps": 30,
+  "scenes": [
+    {
+      "id": "s1-hook",
+      "text": "You wrote a great post. Most people will scroll right past it. But they'll stop for a video.",
+      "cues": { "post": "post", "scroll": "scroll", "stop": "stop", "video": "video" }
+    },
+    {
+      "id": "s2-script",
+      "text": "Post house reads your post and writes a short script. One idea per scene, and every number comes straight from your words.",
+      "cues": { "reads": "reads", "script": "script", "idea": "idea", "number": "number" }
+    },
+    {
+      "id": "s3-voice",
+      "text": "Then a voice reads it. Use ElevenLabs, a free voice that runs on your own machine, or no voice at all.",
+      "cues": { "voice": "voice", "eleven": "ElevenLabs", "free": "free", "none": "no" }
+    },
+    {
+      "id": "s4-timing",
+      "text": "Every word gets a timestamp, so the picture moves at the exact moment the voice says it.",
+      "cues": { "word": "word", "timestamp": "timestamp", "moment": "moment", "says": "says" }
+    },
+    {
+      "id": "s5-stage",
+      "text": "And there are no slides. One camera glides across a single stage, carrying each idea into the next.",
+      "cues": { "slides": "slides", "camera": "camera", "stage": "stage", "carrying": "carrying" }
+    },
+    {
+      "id": "s6-cta",
+      "text": "Point it at a post, and get a video back. Post house is free and open source, on GitHub.",
+      "cues": { "point": "point", "title": "house", "free": "free", "github": "GitHub" },
+      "overlay": true
+    }
+  ],
+  "captionPhrases": { "Post house": "posthouse" }
+}

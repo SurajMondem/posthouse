@@ -1,0 +1,24 @@
+{
+  "name": "posthouse-video",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "voice": "node scripts/voice.mjs",
+    "storyboard": "node scripts/storyboard.mjs",
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Video renders/video.mp4",
+    "still": "remotion still src/index.ts Video",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.536",
+    "@remotion/fonts": "4.0.536",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.536"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}

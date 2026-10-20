@@ -1,0 +1,31 @@
+name: Bug report
+description: Something didn't work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `node bin/posthouse.mjs doctor`
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Voice provider
+      options: [say, kokoro, command, elevenlabs, none]
+  - type: input
+    id: os
+    attributes:
+      label: OS and Node version
+      placeholder: macOS 15.3, Node 22.11
+  - type: markdown
+    attributes:
+      value: Please remove any API keys from logs before posting.

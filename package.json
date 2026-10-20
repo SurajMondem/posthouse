@@ -1,0 +1,19 @@
+{
+  "name": "posthouse",
+  "version": "0.1.0",
+  "description": "Turn a written post into a narrated, captioned video: one continuous stage, a camera that travels between ideas, sound cues on the words. Remotion + any voice (ElevenLabs, local TTS, or none).",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": { "node": ">=20.12" },
+  "bin": { "posthouse": "bin/posthouse.mjs" },
+  "scripts": {
+    "setup": "npm --prefix template install",
+    "doctor": "node bin/posthouse.mjs doctor",
+    "new": "node bin/posthouse.mjs new",
+    "sfx": "node bin/posthouse.mjs sfx",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "keywords": ["video", "remotion", "text-to-speech", "elevenlabs", "kokoro", "whisper", "captions", "explainer", "claude-code", "skill"],
+  "repository": { "type": "git", "url": "https://github.com/SurajMondem/posthouse.git" }
+}
