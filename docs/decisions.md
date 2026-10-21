@@ -127,3 +127,22 @@ cap). Tracking it per file is the only way a creator can answer "can I monetise 
 
 Different sources produce tracks 10–20 dB apart. Normalising means `music.volume` behaves the same whatever made
 the track, so swapping a procedural draft bed for an ACE-Step or ElevenLabs track needs no re-mixing.
+
+## 14. Narration is spoken, and has its own rules
+
+**Choice.** A dedicated guide (`taste/narration.md`) with personas and bridges, a script lint, and `SKILL.md`
+telling the agent to write the script as one spoken piece before cutting it into scenes.
+
+The first real-world test video showed the failure mode: an agent that writes tersely for chat ("short sentences,
+one idea per sentence, no filler") produced narration that sounded like a list of facts, with 2 s of silence at
+every scene change. Connective lines are not filler when spoken; they are what makes it sound like a person.
+
+## 15. Bridges over the camera moves, and one continuous take
+
+**Choice.** Linking lines play while the camera travels, and the whole script is voiced as one take, then sliced.
+
+| Option | Upside | Downside |
+|---|---|---|
+| **Bridges + continuous take** ✓ | Dead air between scenes drops from ~2.0 s to ~0.4 s; intonation flows across cuts for every voice | Editing one line re-voices the whole take (cached otherwise; `--take scenes` when that's costly) |
+| Shorter pauses only | Simple | Still sounds like separate clips; the camera move has nowhere to go |
+| Voice over the whole move without bridges | No new field | Content spoken over a moving camera is hard to follow |

@@ -15,14 +15,14 @@ const WORDS = [
 ];
 
 export const Timing: React.FC<{ cues: Cues }> = ({ cues }) => {
-  const { t, gone } = useT();
+  const { t, out } = useT();
   const sweep = interpolate(t, [cues.word - 0.4, cues.timestamp + 0.9], [AXIS.x, 820], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   return (
     <AbsoluteFill>
       <div style={{ position: 'absolute', left: 84, top: 120, ...appear(t, 0.1) }}><Kicker>Step 3 · Timing</Kicker></div>
       <div style={{ position: 'absolute', left: 84, top: 160, ...appear(t, cues.word - 0.3) }}><Headline size={56}>Words set the clock</Headline></div>
 
-      <div style={{ ...at(AXIS), background: C.muted, opacity: t < 0 ? 0 : gone ? 0.35 : 1 }} />
+      <div style={{ ...at(AXIS), background: C.muted, opacity: t < 0 ? 0 : out }} />
       {WORDS.map((w, i) => {
         const lit = sweep >= w.x + w.w / 2;
         return (
@@ -32,7 +32,7 @@ export const Timing: React.FC<{ cues: Cues }> = ({ cues }) => {
           </div>
         );
       })}
-      <div style={{ position: 'absolute', left: sweep - 2, top: 470, width: 4, height: 170, borderRadius: 2, background: C.accent, opacity: prog(t, cues.word - 0.4, 0.2) * (gone ? 0.35 : 1) }} />
+      <div style={{ position: 'absolute', left: sweep - 2, top: 470, width: 4, height: 170, borderRadius: 2, background: C.accent, opacity: prog(t, cues.word - 0.4, 0.2) * out }} />
 
       <div style={{ position: 'absolute', left: 84, top: 670, width: 56, height: 56, borderRadius: 28, background: C.accent, transform: `scale(${pop(t, cues.moment - 0.05)})` }} />
       <div style={{ position: 'absolute', left: 164, top: 684, ...appear(t, cues.moment, 0.3, 8) }}>

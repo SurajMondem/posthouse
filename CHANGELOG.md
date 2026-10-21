@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.3.0 (2026-10-21)
+
+Narration that sounds like a person, and the holes a fresh install hit.
+
+- **Spoken-script guide** (`taste/narration.md`): personas (launch host, teacher, fellow buyer, storyteller,
+  announcer), bridges, rhythm, emotion, before/after examples. `SKILL.md` now writes the script as one spoken piece
+  first and keeps chat/doc writing rules out of narration.
+- **Bridges**: a `bridge` line per scene, spoken over the camera move into it. The move stretches to fit and the
+  pauses around it shrink, cutting dead air between scenes from ~2 s to ~0.4 s.
+- **One continuous take** (default): the whole script voiced at once and sliced into scenes, so intonation flows
+  across cuts for every voice. `--take scenes` keeps the old behaviour.
+- **Loudness**: every voice take normalised to −16 LUFS (local voices were ~6 dB quieter than ElevenLabs).
+- **Emotion tags**: `tone` / `bridgeTone` for ElevenLabs v3; stripped for every other voice. ElevenLabs `style`
+  default 0.3. Kokoro speaks long takes in sentence-sized chunks.
+- **Script lint** in `npm run voice` and `posthouse check`: missing persona, cold scene openings, list-like rhythm,
+  no questions.
+- `posthouse new` makes a **blank starter** sized `--size wide|square|tall` (`--example` for the full example);
+  `posthouse variant <video> <name>` makes another version sharing the scene code.
+- Colours and fonts move to each video's `src/video/theme.ts`; the framework stays untouched when restyling.
+- Fixes: storyboard leaves out a missing music file instead of crashing the render; the corner logo keeps its
+  aspect ratio; `check` lists the video's real font files; `.nvmrc` (Node 24) and `npm run setup` runs `doctor`.
+
 ## 0.2.0 (2026-10-20)
 
 The open asset layer.

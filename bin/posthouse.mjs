@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 // posthouse: turn a post into a narrated video.
 //   posthouse doctor                          check your setup and say how to fix what's missing
-//   posthouse new <slug> [--post <file>]      start a video in videos/<slug>/ from the template
+//   posthouse new <slug> [--post <file>] [--size wide|square|tall] [--example]   start a video in videos/<slug>/
+//   posthouse variant <video> <name>          another version of a video (other voice/music) sharing its scenes
 //   posthouse voices [--provider <name>]      list the voices a provider offers
 //   posthouse say "text" [--provider <name>] [--out file.wav]   hear one line
 //   posthouse asset sfx|music "prompt" [--seconds n] [--name x] [--source s] [--video dir] [--dry-run] [--force]
 //   posthouse sources [sfx|music]             which asset sources are ready, in resolver order
-//   posthouse check [--video dir] [--commercial]   licences of every voice take and asset in a video
+//   posthouse check [--video dir] [--commercial]   licences of every take, asset and font, plus the script lint
 //   posthouse setup acestep|musicgen|stable-audio|kokoro [--yes]   install an optional local model
 //   posthouse serve acestep                   run the ACE-Step music server
 //   posthouse kit                             rebuild the default synth sound kit in kit/sfx/
@@ -24,6 +25,7 @@ import { loadProvider } from '../lib/voice/index.mjs';
 import { KINDS, plan, readLock, resolveAsset } from '../lib/assets/index.mjs';
 import { SOURCES } from '../lib/assets/sources.mjs';
 import { HOME, install as installPython, installed } from '../lib/assets/python.mjs';
+import { lintScript } from '../lib/script.mjs';
 
 const [cmd, ...rest] = process.argv.slice(2);
 const VALUED = ['provider', 'post', 'out', 'seconds', 'name', 'source', 'video'];
@@ -147,7 +149,14 @@ function check() {
     const same = fs.existsSync(kit) && fs.readFileSync(kit).equals(fs.readFileSync(path.join(sfxDir, f)));
     rows.push({ what: rel, source: same ? 'kit (synth)' : 'unknown', license: same ? { id: 'MIT (posthouse)', commercial: true } : { id: 'not in assets.lock.json', commercial: 'unknown' } });
   }
-  rows.push({ what: 'fonts', source: 'Bricolage Grotesque, DM Sans', license: { id: 'OFL-1.1', commercial: true } });
+  const fontFiles = [];
+  const walk = (d) => { for (const f of fs.existsSync(d) ? fs.readdirSync(d, { withFileTypes: true }) : []) { if (f.isDirectory()) walk(path.join(d, f.name)); else if (/\.(woff2?|ttf|otf)$/i.test(f.name)) fontFiles.push(path.join(d, f.name)); } };
+  walk(path.join(dir, 'public', 'fonts'));
+  for (const f of fontFiles) {
+    const near = [path.dirname(f), path.join(dir, 'public', 'fonts')].some((d) => ['OFL.txt', 'LICENSE', 'LICENSE.txt'].some((l) => fs.existsSync(path.join(d, l))));
+    rows.push({ what: path.relative(path.join(dir, 'public'), f), source: 'font file', license: near ? { id: 'licence file present (check it covers this font)', commercial: 'unknown' } : { id: 'no licence file next to it', commercial: 'unknown' } });
+  }
+  for (const w of lintScript(spec)) console.log(`script ${w.level}: ${w.scene ? `${w.scene}: ` : ''}${w.message}`);
   let blocked = 0;
   let warn = 0;
   for (const r of rows) {
@@ -237,34 +246,76 @@ function kit() {
   console.log(`sound kit: ${files.map((f) => path.basename(f)).join(', ')} → kit/sfx/ and template/public/sfx/`);
 }
 
-const COMMANDS = { doctor, new: newVideo, voices, say, asset, sources, check, setup, serve, kit, sfx: kit, usage };
+const COMMANDS = { doctor, new: newVideo, variant, voices, say, asset, sources, check, setup, serve, kit, sfx: kit, usage };
+
+// A new video is the template's framework + a blank two-scene starter sized for its destination. --example copies
+// the full example video instead (its scenes, music bed and asset lock).
+const SIZES = { square: [1080, 1080], wide: [1920, 1080], tall: [1080, 1920] };
+const EXAMPLE_ONLY = ['src/video/scenes', 'src/video/layout.ts', 'src/video/config.tsx', 'video/scenes.json', 'public/music', 'assets.lock.json'];
+
+function copyVideo(from, dest, extraSkip = []) {
+  const skip = new Set(['node_modules', 'renders', 'narration', 'starter', ...extraSkip]);
+  fs.cpSync(from, dest, {
+    recursive: true,
+    filter: (p) => {
+      const rel = path.relative(from, p);
+      if (skip.has(rel.split(path.sep)[0]) || skip.has(rel)) return false;
+      return !/^public[\\/]voice[\\/].+/.test(rel) && rel !== path.join('src', 'storyboard.json');
+    },
+  });
+  fs.symlinkSync(path.join(TEMPLATE, 'node_modules'), path.join(dest, 'node_modules'), 'dir');
+}
 
 function newVideo() {
   const [slug] = positional();
-  if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) throw new Error('usage: posthouse new <slug> [--post <file>]   (slug: lowercase-with-dashes)');
+  if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) throw new Error('usage: posthouse new <slug> [--post <file>] [--size wide|square|tall] [--example]   (slug: lowercase-with-dashes)');
   if (!fs.existsSync(path.join(TEMPLATE, 'node_modules'))) throw new Error('the template is not installed yet. Run: npm run setup');
   const dest = path.join(ROOT, 'videos', slug);
   if (fs.existsSync(dest)) throw new Error(`${dest} already exists`);
   const post = flag('post') ? path.resolve(flag('post')) : null;
   if (post && !fs.existsSync(post)) throw new Error(`post not found: ${post}`);
-  const skip = new Set(['node_modules', 'renders', 'narration']);
-  fs.cpSync(TEMPLATE, dest, {
-    recursive: true,
-    filter: (p) => {
-      const rel = path.relative(TEMPLATE, p);
-      if (skip.has(rel.split(path.sep)[0])) return false;
-      return !/^public[\\/]voice[\\/].+/.test(rel) && rel !== path.join('src', 'storyboard.json');
-    },
-  });
-  fs.symlinkSync(path.join(TEMPLATE, 'node_modules'), path.join(dest, 'node_modules'), 'dir');
+  const example = has('example');
+  copyVideo(TEMPLATE, dest, example ? [] : EXAMPLE_ONLY);
+  if (!example) {
+    fs.cpSync(path.join(TEMPLATE, 'starter'), dest, { recursive: true });
+    fs.mkdirSync(path.join(dest, 'public', 'music'), { recursive: true });
+    fs.writeFileSync(path.join(dest, 'assets.lock.json'), JSON.stringify({ assets: {} }, null, 2) + '\n');
+    const size = SIZES[flag('size') ?? 'wide'];
+    if (!size) throw new Error(`--size must be one of: ${Object.keys(SIZES).join(', ')}`);
+    const specFile = path.join(dest, 'video', 'scenes.json');
+    const spec = JSON.parse(fs.readFileSync(specFile, 'utf8'));
+    [spec.width, spec.height] = size;
+    fs.writeFileSync(specFile, JSON.stringify(spec, null, 2) + '\n');
+  }
   fs.writeFileSync(path.join(dest, 'posthouse.json'), JSON.stringify({ root: ROOT, post, created: new Date().toISOString().slice(0, 10) }, null, 2) + '\n');
-  console.log(`new video: ${path.relative(process.cwd(), dest) || dest}`);
+  console.log(`new video: ${path.relative(process.cwd(), dest) || dest}${example ? ' (the example)' : ` (${flag('size') ?? 'wide'} starter)`}`);
   console.log('next: write video/scenes.json → npm run voice → npm run storyboard → build src/video/ → npm run render');
+}
+
+// Another version of a video (a different voice, music or cut) that shares its scene code: src/video is linked to
+// the original, everything else (scenes.json, narration, music, renders) is its own.
+function variant() {
+  const [base, name] = positional();
+  if (!base || !name || !/^[a-z0-9][a-z0-9-]*$/.test(name)) throw new Error('usage: posthouse variant <video> <name>   (creates videos/<video>--<name>)');
+  const from = path.join(ROOT, 'videos', base);
+  if (!fs.existsSync(path.join(from, 'video', 'scenes.json'))) throw new Error(`no video at videos/${base}`);
+  const dest = path.join(ROOT, 'videos', `${base}--${name}`);
+  if (fs.existsSync(dest)) throw new Error(`${dest} already exists`);
+  copyVideo(from, dest, ['src/video', 'assets.lock.json', 'posthouse.json']);
+  fs.rmSync(path.join(dest, 'src', 'video'), { recursive: true, force: true });
+  fs.symlinkSync(path.join(from, 'src', 'video'), path.join(dest, 'src', 'video'), 'dir');
+  fs.rmSync(path.join(dest, 'public', 'music'), { recursive: true, force: true });
+  fs.mkdirSync(path.join(dest, 'public', 'music'), { recursive: true });
+  fs.writeFileSync(path.join(dest, 'assets.lock.json'), JSON.stringify({ assets: {} }, null, 2) + '\n');
+  const link = JSON.parse(fs.readFileSync(path.join(from, 'posthouse.json'), 'utf8'));
+  fs.writeFileSync(path.join(dest, 'posthouse.json'), JSON.stringify({ ...link, variantOf: base, created: new Date().toISOString().slice(0, 10) }, null, 2) + '\n');
+  console.log(`variant: videos/${base}--${name} (scenes shared with ${base}; voice, music and renders its own)`);
+  console.log('next: edit video/scenes.json (voice, music, bridges) → npm run voice → npm run storyboard → npm run render');
 }
 
 try {
   if (!COMMANDS[cmd]) {
-    console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 15).map((l) => l.replace(/^\/\/ ?/, '')).join('\n'));
+    console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 16).map((l) => l.replace(/^\/\/ ?/, '')).join('\n'));
     process.exitCode = cmd ? 2 : 0;
   } else {
     await COMMANDS[cmd]();

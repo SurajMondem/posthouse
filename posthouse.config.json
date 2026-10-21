@@ -3,29 +3,80 @@
   "voice": {
     "provider": "auto",
     "final": "elevenlabs",
-    "say": { "voice": "Samantha", "rate": 180 },
-    "kokoro": { "voice": "af_heart", "speed": 1, "dtype": "q8" },
-    "command": { "run": "", "input": "stdin", "ext": "wav" },
+    "say": {
+      "voice": "Samantha",
+      "rate": 180
+    },
+    "kokoro": {
+      "voice": "af_heart",
+      "speed": 1,
+      "dtype": "q8"
+    },
+    "command": {
+      "run": "",
+      "input": "stdin",
+      "ext": "wav"
+    },
     "elevenlabs": {
       "voiceId": "",
       "voiceName": "",
       "modelId": "eleven_multilingual_v2",
       "outputFormat": "mp3_44100_192",
-      "settings": { "stability": 0.5, "similarity_boost": 0.8, "style": 0, "use_speaker_boost": true }
+      "settings": {
+        "stability": 0.5,
+        "similarity_boost": 0.8,
+        "style": 0.3,
+        "use_speaker_boost": true
+      }
     },
-    "none": { "wordsPerSecond": 2.5 }
+    "none": {
+      "wordsPerSecond": 2.5
+    }
   },
   "assets": {
-    "sfx": { "order": ["files", "synth", "stable-audio", "openverse", "elevenlabs"] },
-    "music": { "order": ["files", "acestep", "musicgen", "stable-audio", "openverse", "procedural", "elevenlabs"] },
+    "sfx": {
+      "order": [
+        "files",
+        "synth",
+        "stable-audio",
+        "openverse",
+        "elevenlabs"
+      ]
+    },
+    "music": {
+      "order": [
+        "files",
+        "acestep",
+        "musicgen",
+        "stable-audio",
+        "openverse",
+        "procedural",
+        "elevenlabs"
+      ]
+    },
     "sources": {
-      "acestep": { "url": "http://127.0.0.1:8001", "thinking": false, "timeout": 900 },
-      "musicgen": { "model": "facebook/musicgen-small" },
-      "stable-audio": { "model": "stabilityai/stable-audio-open-1.0", "steps": 100 },
-      "openverse": { "license": "cc0" },
+      "acestep": {
+        "url": "http://127.0.0.1:8001",
+        "thinking": false,
+        "timeout": 900
+      },
+      "musicgen": {
+        "model": "facebook/musicgen-small"
+      },
+      "stable-audio": {
+        "model": "stabilityai/stable-audio-open-1.0",
+        "steps": 100
+      },
+      "openverse": {
+        "license": "cc0"
+      },
       "elevenlabs": {}
     }
   },
-  "align": { "whisper": "auto", "model": "", "language": "en" },
+  "align": {
+    "whisper": "auto",
+    "model": "",
+    "language": "en"
+  },
   "taste": "taste"
 }

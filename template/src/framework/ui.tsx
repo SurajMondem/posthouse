@@ -4,14 +4,17 @@ import { C, DISPLAY, SANS } from './theme';
 
 // Scene clock on the one stage: t = 0 when the camera arrives at the station; `depart` = when it leaves.
 // A station mounts `offset` seconds early (while the camera travels in), so t is negative during the move.
-export const SceneClock = createContext({ offset: 0, depart: Infinity });
+export const SceneClock = createContext({ offset: 0, depart: Infinity, away: Infinity });
 
 export const useT = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const { offset, depart } = useContext(SceneClock);
+  const { offset, depart, away } = useContext(SceneClock);
   const t = frame / fps - offset;
-  return { t, frame, fps, end: depart, gone: t >= depart };
+  // out: opacity for an element carried OUT of this scene. Hidden while the carrier draws its moving copy (so it
+  // never shows twice), then back at 0.35 so the pulled-back ending never shows an empty station.
+  const out = t < depart ? 1 : t < away ? 0 : 0.35;
+  return { t, frame, fps, end: depart, gone: t >= depart, out };
 };
 
 type P = { children?: React.ReactNode; style?: React.CSSProperties };

@@ -18,7 +18,7 @@ const FeedCard: React.FC<{ y: number; opacity: number; children?: React.ReactNod
 );
 
 export const Hook: React.FC<{ cues: Cues }> = ({ cues }) => {
-  const { t, gone } = useT();
+  const { t, out } = useT();
   const offset = -3 * STEP * prog(t, cues.scroll, 1.2) + 3 * STEP * prog(t, cues.stop - 0.15, 0.7);
   const others = prog(t, cues.scroll - 0.25, 0.3);
   const video = prog(t, cues.video - 0.1, 0.4);
@@ -33,7 +33,7 @@ export const Hook: React.FC<{ cues: Cues }> = ({ cues }) => {
 
       <div style={{ position: 'absolute', left: FEED.x, top: FEED.y, width: FEED.w, height: FEED.h, overflow: 'hidden', maskImage: 'linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%)', WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%)' }}>
         {[-2, -1, 1, 2, 3, 4, 5].map((k) => <FeedCard key={k} y={mainY + k * STEP} opacity={others} />)}
-        <FeedCard y={mainY} opacity={(gone ? 0.35 : 1) * prog(t, cues.post - 0.3)}>
+        <FeedCard y={mainY} opacity={out * prog(t, cues.post - 0.3)}>
           <div style={{ position: 'absolute', inset: 0, background: C.ink, opacity: 0.85 * video }} />
           <div style={{ position: 'absolute', left: POST_CARD.w / 2 - 40, top: POST_CARD.h / 2 - 40, width: 80, height: 80, borderRadius: 40, background: C.accent, transform: `scale(${pop(t, cues.video - 0.1)})`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: 0, height: 0, marginLeft: 8, borderTop: '17px solid transparent', borderBottom: '17px solid transparent', borderLeft: `28px solid ${C.ink}` }} />

@@ -24,3 +24,6 @@ Start with `node bin/posthouse.mjs doctor`. It checks each piece and prints the 
 | `check --commercial` fails | A non-commercial voice (macOS `say`) or track (MusicGen) is in the video | Re-voice with another provider; regenerate the asset with `"commercial": true` in `scenes.json` |
 | Music too loud or quiet | `music.volume` | 0.2–0.4 suits most beds; `duck` sets how far it dips under speech |
 | Render is slow | High resolution / long video | `npm run render -- --concurrency=8`, or render a still: `npm run still -- --frame=120` |
+| `the take has N words but the script has M` | The voice spelled something as more/fewer words than the script (rare with numbers or URLs) | Spell it the way it's said in the script, or `npm run voice -- --take scenes` |
+| `script warn: … starts cold` | A scene opens with no link to the one before | Add a `bridge`, or open with "But", "So", "That's"… ([taste/narration.md](../taste/narration.md)) |
+| Narration sounds like a list of facts | Short, same-length sentences; no bridges | Rewrite as one spoken piece; vary sentence length; add bridges and a persona |

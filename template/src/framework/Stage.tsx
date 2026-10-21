@@ -33,6 +33,8 @@ export type Storyboard = {
   height: number;
   total: number;
   scenes: { id: string; audio: string | null; start: number; duration: number; lead: number; moveIn: number; cues: Cues }[];
+  // lines spoken over the camera move into a scene (`bridge` in scenes.json); `at` is when the move begins
+  bridges?: { id: string; audio: string | null; at: number }[];
   captions: CaptionPage[];
   sting?: { at: number; duration: number } | null;
   // optional bed under everything; envelope = [seconds, gain] keyframes that duck under the voice (lib/timeline.mjs)
@@ -79,7 +81,7 @@ export const Stage: React.FC<{ sb: Storyboard; config: StageConfig }> = ({ sb, c
         {config.stations.map(({ id, Comp }, i) => (
           <div key={id} style={{ position: 'absolute', left: i * W, top: 0, width: W, height: H }}>
             <Sequence from={f(sc[i].start - sc[i].moveIn)} layout="none">
-              <SceneClock.Provider value={{ offset: sc[i].moveIn, depart: sc[i].duration }}>
+              <SceneClock.Provider value={{ offset: sc[i].moveIn, depart: sc[i].duration, away: sc[i].duration + (sc[i + 1]?.moveIn ?? 0) }}>
                 <Comp cues={sc[i].cues} />
               </SceneClock.Provider>
             </Sequence>
@@ -90,7 +92,7 @@ export const Stage: React.FC<{ sb: Storyboard; config: StageConfig }> = ({ sb, c
 
       {config.overlay && overlayScene && (
         <Sequence from={f(overlayScene.start)} layout="none">
-          <SceneClock.Provider value={{ offset: 0, depart: Infinity }}>
+          <SceneClock.Provider value={{ offset: 0, depart: Infinity, away: Infinity }}>
             <config.overlay.Comp cues={overlayScene.cues} />
           </SceneClock.Provider>
         </Sequence>
@@ -98,6 +100,9 @@ export const Stage: React.FC<{ sb: Storyboard; config: StageConfig }> = ({ sb, c
 
       {sc.map((s) => (s.audio ? (
         <Sequence key={`v-${s.id}`} from={f(s.start + s.lead)}><Audio src={staticFile(s.audio)} volume={vol.voice} /></Sequence>
+      ) : null))}
+      {(sb.bridges ?? []).map((b) => (b.audio ? (
+        <Sequence key={`b-${b.id}`} from={f(b.at)}><Audio src={staticFile(b.audio)} volume={vol.voice} /></Sequence>
       ) : null))}
       {sc.slice(0, -1).map((s, i) => (
         <Sequence key={`w-${s.id}`} from={Math.max(0, f(depart(i)) - 3)} durationInFrames={f(0.8)}><Audio src={staticFile('sfx/whoosh.wav')} volume={vol.whoosh} /></Sequence>
@@ -118,7 +123,7 @@ export const Stage: React.FC<{ sb: Storyboard; config: StageConfig }> = ({ sb, c
       <Captions pages={sb.captions} />
       {chrome && (
         <div style={{ position: 'absolute', left: 60, top: 44, display: 'flex', alignItems: 'center', gap: 12, font: `600 22px/1 ${SANS}`, color: C.muted, opacity: overlayScene ? interpolate(t, [overlayScene.start - 1.5, overlayScene.start - 0.5], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) : 1 }}>
-          {chrome.logo && <Img src={staticFile(chrome.logo)} style={{ width: 30, height: 30 }} />}{chrome.text}
+          {chrome.logo && <Img src={staticFile(chrome.logo)} style={{ height: 30, width: 'auto' }} />}{chrome.text}
         </div>
       )}
     </AbsoluteFill>

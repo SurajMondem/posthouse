@@ -11,7 +11,7 @@ const STEP = 186;
 const HOP = 0.55;
 
 export const StageScene: React.FC<{ cues: Cues }> = ({ cues }) => {
-  const { t, gone } = useT();
+  const { t, out } = useT();
   const pos = [0, 1, 2, 3].reduce((n, i) => n + prog(t, cues.camera + i * HOP, HOP * 0.8), 0);
   const frameX = BASE.x - 8 + STEP * pos;
   return (
@@ -26,10 +26,10 @@ export const StageScene: React.FC<{ cues: Cues }> = ({ cues }) => {
           <Lines n={3} h={9} gap={12} style={{ position: 'absolute', left: 18, right: 18, top: 70 }} />
         </div>
       ))}
-      <div style={{ position: 'absolute', left: frameX, top: BASE.y - SIZE - 40, width: SIZE + 16, height: SIZE + 16, borderRadius: 22, border: `4px solid ${C.accent}`, opacity: prog(t, cues.camera - 0.3, 0.3) * (gone ? 0.35 : 1) }} />
+      <div style={{ position: 'absolute', left: frameX, top: BASE.y - SIZE - 40, width: SIZE + 16, height: SIZE + 16, borderRadius: 22, border: `4px solid ${C.accent}`, opacity: prog(t, cues.camera - 0.3, 0.3) * out }} />
       <div style={{ position: 'absolute', left: frameX + 8 + SIZE / 2 - 12, top: BASE.y - 12, width: 24, height: 24, borderRadius: 12, background: C.accent, transform: `scale(${pop(t, cues.carrying - 0.05)})` }} />
 
-      <div style={{ ...at(BASE), background: C.muted, opacity: t < 0 ? 0 : gone ? 0.35 : 1 }} />
+      <div style={{ ...at(BASE), background: C.muted, opacity: t < 0 ? 0 : out }} />
     </AbsoluteFill>
   );
 };

@@ -11,14 +11,14 @@ const Tag: React.FC<{ scale: number; style?: React.CSSProperties }> = ({ scale, 
 );
 
 export const Script: React.FC<{ cues: Cues }> = ({ cues }) => {
-  const { t, gone } = useT();
+  const { t, out } = useT();
   const lit = prog(t, cues.number - 0.1, 0.3);
   return (
     <AbsoluteFill>
       <div style={{ position: 'absolute', left: 84, top: 120, ...appear(t, 0.1) }}><Kicker>Step 1 · Script</Kicker></div>
       <div style={{ position: 'absolute', left: 84, top: 160, ...appear(t, cues.reads - 0.3) }}><Headline size={56}>From post to script</Headline></div>
 
-      <div style={{ ...at(POST_PANEL), background: C.surface, border: `2px solid ${C.border}`, opacity: t < 0 ? 0 : gone ? 0.35 : 1, overflow: 'hidden' }}>
+      <div style={{ ...at(POST_PANEL), background: C.surface, border: `2px solid ${C.border}`, opacity: t < 0 ? 0 : out, overflow: 'hidden' }}>
         <div style={{ position: 'absolute', left: 28, top: 30, width: 220, height: 18, borderRadius: 9, background: C.text, opacity: 0.7 }} />
         <Lines n={4} style={{ position: 'absolute', left: 28, right: 28, top: 78 }} />
         <div style={{ position: 'absolute', left: 28, top: 238, width: 200, height: 14, borderRadius: 7, background: C.accent, opacity: 0.25 + 0.75 * lit }} />

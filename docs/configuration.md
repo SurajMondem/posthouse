@@ -56,6 +56,10 @@ Example `posthouse.config.local.json`:
 | `music` | `{ "file": "music/bed.wav", "volume": 0.3, "duck": 0.4, "fadeIn": 1.5, "fadeOut": 2.5 }`: a bed that dips under the voice |
 | `commercial` | `true` makes the asset resolver skip non-commercial sources and `posthouse check` fail on them |
 | `sting` | `false` to drop the closing sting |
+| `delivery.persona` | who is talking: `launch-host`, `teacher`, `fellow-buyer`, `storyteller`, `announcer` ([taste/narration.md](../taste/narration.md)) |
+| `delivery.take` | `continuous` (default: the whole script in one take, sliced into scenes) or `scenes` (one take per scene; cheaper to re-voice one) |
+| `scenes[].bridge` | a short linking line spoken over the camera move into this scene (not on the first scene) |
+| `scenes[].tone`, `scenes[].bridgeTone` | an emotion tag (`curious`, `excited`, `wry`…) performed by ElevenLabs v3 models; other voices ignore it |
 
 ## Environment
 

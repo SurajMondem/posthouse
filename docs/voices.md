@@ -16,6 +16,18 @@ flowchart LR
   with the free default and tells you to use `--final`.
 - Every take is cached per provider, so going back and forth between draft and final never re-spends credits.
 
+## How a script becomes a voice
+
+- **One continuous take** (default): the whole script, bridges included, is voiced in one go and sliced back into
+  scenes at the pauses between them. The intonation flows like one person talking, even for voices that can't see
+  the neighbouring lines (Kokoro, Piper). `--take scenes` voices each scene separately instead: cheaper when you
+  re-voice one scene with a paid voice.
+- **Loudness**: every take is normalised to −16 LUFS, so a quiet local voice and a loud hosted one sit the same
+  above the music.
+- **Emotion**: `tone` / `bridgeTone` tags are performed by ElevenLabs v3 models (set `modelId` to a v3 model);
+  other voices never see them. ElevenLabs `settings.style` defaults to 0.3 for a little more expression.
+- **How it reads** matters more than any setting: see [taste/narration.md](../taste/narration.md).
+
 Check any setup with:
 
 ```bash

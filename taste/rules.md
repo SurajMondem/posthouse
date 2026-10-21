@@ -15,8 +15,9 @@ New rules come from your feedback through `corrections.md`: the same note twice 
 3. **No slide resets.** One continuous stage. Every move between scenes hands something across (a carrier): a shape
    that morphs, a frame, a line that becomes the next scene's floor. Never cut or crossfade between self-contained
    frames.
-4. **Still while speaking.** The camera moves only between scenes, in the pause after the voice. No idle wobble to
-   fill time.
+4. **Still while explaining.** The camera moves only between scenes. A scene's content is never spoken over a
+   moving camera; a short **bridge** line (see `narration.md`) is, and should be: it carries the viewer across. No
+   idle wobble to fill time.
 5. **Real facts only.** Every number and claim on screen or in the script traces to a line in the post. Nothing
    invented.
 6. **Nothing that costs money unless you ask.** Draft with free voices and sounds. Paid ones run only on request

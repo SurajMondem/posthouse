@@ -61,9 +61,9 @@ npm run render           # → template/renders/video.mp4
 Make your own:
 
 ```bash
-node bin/posthouse.mjs new my-first-video --post path/to/your-post.md
+node bin/posthouse.mjs new my-first-video --post path/to/your-post.md --size wide   # or square, tall
 cd videos/my-first-video
-# write video/scenes.json (what the voice says, which words fire which visuals)
+# write video/scenes.json: the narration (with bridges between scenes) and the words that fire visuals
 npm run voice && npm run storyboard
 npm run studio           # live preview while you build the scenes in src/video/
 node ../../bin/posthouse.mjs asset music "calm warm synth pad" --seconds 60 --name bed   # optional bed
@@ -171,7 +171,8 @@ directly; [AGENTS.md](AGENTS.md) points them there.
 
 | Change | Where |
 |---|---|
-| Colours, fonts | `taste/look.md` + `template/src/framework/theme.ts` |
+| Colours, fonts | each video's `src/video/theme.ts` (default: `template/src/video/theme.ts` + `taste/look.md`) |
+| How the narration sounds | `taste/narration.md` (persona, bridges, rhythm) |
 | Rules the agent follows | `taste/rules.md` |
 | Corner mark | `chrome` in each video's `src/video/config.tsx` |
 | Sounds, music | `posthouse asset …` or your own files ([docs/assets.md](docs/assets.md)) |

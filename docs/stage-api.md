@@ -53,8 +53,9 @@ Rules that keep it one continuous shot:
 
 ## Helpers
 
-`framework/theme.ts`: `C` (colour tokens), `DISPLAY`, `SANS`, `E` (easeInOutCubic), `prog(t, at, d)` (0 → 1),
-`appear(t, at, d, dy)` (fade up), `dim(t, at, to)` (focus by dimming), `pop(t, at)` (overshoot scale).
+`framework/theme.ts`: `C` (colour tokens), `DISPLAY`, `SANS`, `MONO`, `E` (easeInOutCubic), `OUT` (ease-out),
+`prog(t, at, d, ease)` (0 → 1), `appear(t, at, d, dy)` (fade up), `dim(t, at, to)` (focus by dimming),
+`pop(t, at)` (overshoot scale), `count(t, at, from, to, d)` (number counter), `usd(n)` ("$48,710").
 
 `framework/ui.tsx`: `useT`, `Kicker`, `Headline`, `Card`, `Label`, `Small`, `Lines` (placeholder text lines).
 
@@ -64,6 +65,16 @@ Rules that keep it one continuous shot:
 
 `lib/timeline.mjs`: `LEAD` 0.4 s before the voice, `TAIL` 0.6 s after, `MOVE` 1.0 s between stations, `PULL` 1.5 s
 into the overlay, `STING` 3.0 s.
+
+**Bridges.** When a scene has a `bridge` line, it is spoken over the camera move into that scene. The move stretches
+to fit the line (bridge length + 0.1 s), and the pauses around it shrink to `BRIDGE_TAIL` 0.2 s and `BRIDGE_LEAD`
+0.15 s, so the narration flows across the move. Bridges are in `storyboard.bridges` and captioned like any line.
+
+## The look
+
+Colours, fonts and the mono face live in each video's `src/video/theme.ts` (`C`, `FONTS`, `DISPLAY`, `SANS`,
+`MONO`). The framework re-exports them, so scenes keep importing from `framework/theme`, and restyling a video
+never touches `src/framework/`.
 
 ## Reusable pieces
 

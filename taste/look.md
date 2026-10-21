@@ -1,7 +1,7 @@
 # Look: Marquee
 
 The starter look. A dark stage, warm white type, one marquee-yellow accent. Change it to your own brand by editing
-this file **and** the tokens in `template/src/framework/theme.ts` together.
+this file **and** the tokens in `template/src/video/theme.ts` together.
 
 ## Colours
 

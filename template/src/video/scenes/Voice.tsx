@@ -13,7 +13,7 @@ const OPTIONS = [
 ] as const;
 
 export const Voice: React.FC<{ cues: Cues }> = ({ cues }) => {
-  const { t, gone } = useT();
+  const { t, out } = useT();
   const amp = prog(t, cues.voice - 0.1, 0.3) * (1 - 0.88 * prog(t, cues.none, 0.5));
   const active = OPTIONS.reduce((k, o, i) => (t >= cues[o.cue] - 0.1 ? i : k), -1);
   const bars = 36;
@@ -22,7 +22,7 @@ export const Voice: React.FC<{ cues: Cues }> = ({ cues }) => {
       <div style={{ position: 'absolute', left: 84, top: 120, ...appear(t, 0.1) }}><Kicker>Step 2 · Voice</Kicker></div>
       <div style={{ position: 'absolute', left: 84, top: 160, ...appear(t, cues.voice - 0.3) }}><Headline size={56}>Any voice, or none</Headline></div>
 
-      <div style={{ ...at(WAVE), background: C.surface, border: `2px solid ${C.border}`, opacity: t < 0 ? 0 : gone ? 0.35 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+      <div style={{ ...at(WAVE), background: C.surface, border: `2px solid ${C.border}`, opacity: t < 0 ? 0 : out, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
         {Array.from({ length: bars }, (_, i) => {
           const h = 10 + 140 * amp * Math.abs(Math.sin(i * 0.62 + t * 7) * Math.cos(i * 0.21 - t * 2.3));
           return <div key={i} style={{ width: 14, height: h, borderRadius: 7, background: C.accent, opacity: 0.35 + 0.65 * amp }} />;

@@ -1,0 +1,22 @@
+{
+  "$comment": "THIS VIDEO. delivery.persona = who is talking (launch-host, teacher, fellow-buyer, storyteller; taste/narration.md). Each scene: text = what the voice says; bridge = a short linking line spoken over the camera move INTO the scene (not on the first scene); tone = an emotion tag for ElevenLabs v3 voices; cues = name → the spoken word that fires it. Optional: music = { file, volume, duck }; commercial: true to keep every asset licence-safe for paid use.",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "commercial": false,
+  "delivery": { "persona": "teacher" },
+  "scenes": [
+    {
+      "id": "s1-hook",
+      "text": "This is your opening line. Say the problem the way a friend would.",
+      "tone": "curious",
+      "cues": { "opening": "opening" }
+    },
+    {
+      "id": "s2-point",
+      "bridge": "So here's the idea.",
+      "text": "One idea per scene, and the picture moves on the word that names it.",
+      "cues": { "idea": "idea" }
+    }
+  ]
+}
