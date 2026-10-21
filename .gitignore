@@ -26,3 +26,7 @@ models/
 # Local caches and your own asset library
 cache/
 library/
+
+# Python bytecode
+__pycache__/
+*.pyc
