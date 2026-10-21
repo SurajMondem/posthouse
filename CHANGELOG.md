@@ -16,6 +16,9 @@ The open asset layer.
 - **`posthouse setup` / `serve`** for optional local models, each in its own environment.
 - New synth sounds: riser, impact, chime. `posthouse sfx` is now `posthouse kit` (old name still works).
 - Example video gets a procedural music bed.
+- Tested on an M1 Pro (16 GB): MusicGen ✓, Openverse ✓, synth/procedural ✓. ACE-Step runs out of memory on 16 GB
+  machines; posthouse now refuses ACE-Step requests under 20 GB free disk, serves it without its optional LM, and
+  connects over IPv4 (`127.0.0.1`, not `localhost`). See `docs/assets.md` § What's been tested.
 
 ## 0.1.0 (2026-10-20)
 

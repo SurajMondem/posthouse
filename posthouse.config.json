@@ -19,7 +19,7 @@
     "sfx": { "order": ["files", "synth", "stable-audio", "openverse", "elevenlabs"] },
     "music": { "order": ["files", "acestep", "musicgen", "stable-audio", "openverse", "procedural", "elevenlabs"] },
     "sources": {
-      "acestep": { "url": "http://localhost:8001", "thinking": false, "timeout": 900 },
+      "acestep": { "url": "http://127.0.0.1:8001", "thinking": false, "timeout": 900 },
       "musicgen": { "model": "facebook/musicgen-small" },
       "stable-audio": { "model": "stabilityai/stable-audio-open-1.0", "steps": 100 },
       "openverse": { "license": "cc0" },

@@ -5,7 +5,7 @@ lives in its own environment under `~/.cache/posthouse/`, so posthouse itself st
 
 | Plugin | Makes | How it connects | Licence of the output |
 |---|---|---|---|
-| `acestep` | music (full songs or instrumentals, 10–600 s) | local REST server (`posthouse serve acestep`) | MIT |
+| `acestep` | music (full songs or instrumentals, 10–600 s); 32 GB+ RAM or a CUDA GPU recommended | local REST server (`posthouse serve acestep`) | MIT |
 | `musicgen` | music (up to 30 s, looped to length) | `musicgen/generate.py` in a venv | CC-BY-NC 4.0: non-commercial |
 | `stable-audio` | sound effects, textures, short beds (up to 47 s) | `stable-audio/generate.py` in a venv | Stability AI Community License |
 | `kokoro` | narration voice | `kokoro-js` npm package | Apache-2.0 |

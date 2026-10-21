@@ -18,7 +18,7 @@ Start with `node bin/posthouse.mjs doctor`. It checks each piece and prints the 
 | A scene's element appears twice during a camera move | The carried-in copy is visible while the carrier draws it | Hide it while `t < 0` ([stage-api.md](stage-api.md#a-scene)) |
 | `note: elevenlabs is used only when you ask for it` | ElevenLabs is set as the draft voice | Expected. Draft with a free voice; `npm run voice -- --final` for ElevenLabs |
 | `no source could make this music/sfx` | Nothing in the order can deliver (lists why for each) | Install a model (`posthouse setup …`), add a file to `assets/`, or reorder `assets.*.order` |
-| `no ACE-Step server at http://localhost:8001` | The server isn't running | `node bin/posthouse.mjs serve acestep` in another terminal (first start downloads models) |
+| `no ACE-Step server at http://127.0.0.1:8001` | The server isn't running | `node bin/posthouse.mjs serve acestep` in another terminal (first start downloads models) |
 | `musicgen is not set up` / `stable-audio is not set up` | Optional model not installed | `node bin/posthouse.mjs setup <name> --yes` |
 | Stable Audio: `401` / `gated repo` | Model terms not accepted | Accept them on the model's Hugging Face page, then `huggingface-cli login` |
 | `check --commercial` fails | A non-commercial voice (macOS `say`) or track (MusicGen) is in the video | Re-voice with another provider; regenerate the asset with `"commercial": true` in `scenes.json` |

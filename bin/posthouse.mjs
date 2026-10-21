@@ -13,6 +13,7 @@
 //   posthouse usage                           ElevenLabs credits left
 // Paid services (ElevenLabs) run only when you ask: npm run voice -- --final, or asset … --source elevenlabs.
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawn } from 'node:child_process';
 import { chooseVoice, loadConfig, PAID, ROOT } from '../lib/config.mjs';
@@ -191,9 +192,19 @@ function setup() {
 function serve() {
   if (positional()[0] !== 'acestep') throw new Error('usage: posthouse serve acestep');
   if (!fs.existsSync(ACE_DIR)) throw new Error('ACE-Step is not set up. Run: node bin/posthouse.mjs setup acestep --yes');
-  const mac = process.platform === 'darwin' && fs.existsSync(path.join(ACE_DIR, 'start_api_server_macos.sh'));
-  console.log(`starting ACE-Step at ${config.assets?.sources?.acestep?.url ?? 'http://localhost:8001'} (Ctrl-C to stop)…`);
-  spawn(mac ? 'bash' : 'uv', mac ? ['start_api_server_macos.sh'] : ['run', 'acestep-api'], { cwd: ACE_DIR, stdio: 'inherit' });
+  // Same as ACE-Step's own start scripts, minus their interactive update prompts: Apple Silicon uses the MLX backend.
+  const url = new URL(config.assets?.sources?.acestep?.url ?? 'http://127.0.0.1:8001');
+  // Its language model (1–4 GB more) only serves "thinking" mode; leave it unloaded unless thinking is on.
+  const thinking = config.assets?.sources?.acestep?.thinking === true;
+  // Under 24 GB of memory its audio decoder can exhaust RAM and swap the disk full: decode in small chunks instead.
+  const lowMemory = os.totalmem() < 24 * 1024 ** 3;
+  const env = {
+    ...process.env, TOKENIZERS_PARALLELISM: 'false', ACESTEP_INIT_LLM: thinking ? 'auto' : 'false',
+    ...(process.platform === 'darwin' && process.arch === 'arm64' ? { ACESTEP_LM_BACKEND: 'mlx' } : {}),
+    ...(lowMemory ? { ACESTEP_VAE_DECODE_CHUNK_SIZE: '128', ACESTEP_MPS_DECODE_OFFLOAD: '1' } : {}),
+  };
+  console.log(`starting ACE-Step at ${url.origin} (first start downloads its models; Ctrl-C to stop)…`);
+  spawn('uv', ['run', 'acestep-api', '--host', url.hostname === 'localhost' ? '127.0.0.1' : url.hostname, '--port', url.port || '8001'], { cwd: ACE_DIR, stdio: 'inherit', env });
 }
 
 async function voices() {

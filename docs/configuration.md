@@ -22,7 +22,7 @@ Secrets are never in any of these. They come from the environment or `.env` (git
 | `voice.none` | `{ wordsPerSecond: 2.5 }` | reading pace for silent videos |
 | `assets.sfx.order` | `files, synth, stable-audio, openverse, elevenlabs` | sources tried for sound effects ([assets.md](assets.md)) |
 | `assets.music.order` | `files, acestep, musicgen, stable-audio, openverse, procedural, elevenlabs` | sources tried for music |
-| `assets.sources.acestep` | `{ url: "http://localhost:8001", thinking: false, timeout: 900 }` | ACE-Step server; `thinking: true` uses its LM planner (slower, richer) |
+| `assets.sources.acestep` | `{ url: "http://127.0.0.1:8001", thinking: false, timeout: 900 }` | ACE-Step server; `thinking: true` loads its LM planner (1–4 GB more, slower, richer); `minFreeDiskGb` (default 20) refuses requests when disk is low |
 | `assets.sources.musicgen` | `{ model: "facebook/musicgen-small" }` | or `musicgen-medium` / `-large` (more memory) |
 | `assets.sources.stable-audio` | `{ model: "stabilityai/stable-audio-open-1.0", steps: 100 }` | fewer steps = faster, rougher |
 | `assets.sources.openverse` | `{ license: "cc0" }` | `by` also allows attribution licences (credits are recorded) |
