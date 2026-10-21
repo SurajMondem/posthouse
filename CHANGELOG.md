@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.0 (2026-10-20)
+
+The open asset layer.
+
+- **Paid services are intentional.** Draft voice (free) and final voice (`npm run voice -- --final`, ElevenLabs)
+  are separate. ElevenLabs never runs from config alone or as a fallback.
+- **Per-provider take cache** (`narration/cache/`): switching between draft and final never re-spends credits.
+- **`posthouse asset sfx|music "prompt"`**: one resolver over your files, synth sounds, procedural music,
+  ACE-Step 1.5, MusicGen, Stable Audio Open, Openverse (CC0) and ElevenLabs (only with `--source`). Results are
+  cached, fitted to length, and music is normalised to −18 LUFS.
+- **Music beds** in `scenes.json` that fade in, duck under every line of narration and fade out.
+- **Licence tracking**: every take and asset records its licence; `posthouse check [--commercial]` audits a video
+  and prints credit lines. Commercial videos skip non-commercial sources.
+- **`posthouse setup` / `serve`** for optional local models, each in its own environment.
+- New synth sounds: riser, impact, chime. `posthouse sfx` is now `posthouse kit` (old name still works).
+- Example video gets a procedural music bed.
+
 ## 0.1.0 (2026-10-20)
 
 First public release.

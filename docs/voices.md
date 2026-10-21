@@ -1,8 +1,20 @@
 # Voices
 
-Pick a provider in `posthouse.config.local.json` (create it; it's git-ignored and merged over
-`posthouse.config.json`). A single video can override it in its `video/scenes.json` with
-`"voice": { "provider": "…" }`, and a single run with `npm run voice -- --provider …`.
+Two voices per setup: a **draft** voice (free, used by default) and a **final** voice (used only when you ask).
+
+```mermaid
+flowchart LR
+  D["npm run voice<br/>draft voice: say / kokoro / command / none<br/>$0, iterate freely"] -->|"the draft is right"| F["npm run voice -- --final<br/>final voice: ElevenLabs<br/>cost shown first"]
+  F -.->|"both cached in narration/cache/"| D
+```
+
+- Draft voice: `voice.provider` in `posthouse.config.local.json` (create it; it's git-ignored and merged over
+  `posthouse.config.json`). A video can override it in `video/scenes.json` with `"voice": { "provider": "…" }`.
+- Final voice: `voice.final` (ElevenLabs by default), used only by `npm run voice -- --final`.
+- One run with any provider: `npm run voice -- --provider …`.
+- **Paid voices never run from config alone.** If a config names ElevenLabs as the draft voice, posthouse drafts
+  with the free default and tells you to use `--final`.
+- Every take is cached per provider, so going back and forth between draft and final never re-spends credits.
 
 Check any setup with:
 
@@ -89,7 +101,8 @@ The command comes only from your config and runs as you.
 ## `elevenlabs` (hosted, paid)
 
 The best quality, and the only provider that can speak in **your own cloned voice**. Returns exact word timings,
-so whisper isn't needed.
+so whisper isn't needed. It's the default **final** voice: it runs only with `npm run voice -- --final` (or
+`--provider elevenlabs`), never on its own.
 
 1. Get a key: elevenlabs.io → Settings → API keys.
 2. `cp .env.example .env` and paste it after `ELEVENLABS_API_KEY=`. (On macOS you can instead store it in the
@@ -99,13 +112,13 @@ so whisper isn't needed.
 ```json
 {
   "voice": {
-    "provider": "elevenlabs",
+    "final": "elevenlabs",
     "elevenlabs": { "voiceId": "…", "voiceName": "My voice", "modelId": "eleven_multilingual_v2", "settings": { "stability": 0.6, "similarity_boost": 0.85 } }
   }
 }
 ```
 
-- `npm run voice -- --dry-run` shows the credit cost (about 1 credit per character; a 60 s video is ~900) and
+- `npm run voice -- --final --dry-run` shows the credit cost (about 1 credit per character; a 60 s video is ~900) and
   what's left, before spending anything. `node bin/posthouse.mjs usage` shows your balance.
 - Each scene is sent with its neighbours' text (`previous_text` / `next_text`), so intonation flows across scenes.
 - **Clone your voice:** ElevenLabs → Voices → Add voice → Instant Voice Clone (1–2 minutes of clean speech). Use

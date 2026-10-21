@@ -35,6 +35,8 @@ export type Storyboard = {
   scenes: { id: string; audio: string | null; start: number; duration: number; lead: number; moveIn: number; cues: Cues }[];
   captions: CaptionPage[];
   sting?: { at: number; duration: number } | null;
+  // optional bed under everything; envelope = [seconds, gain] keyframes that duck under the voice (lib/timeline.mjs)
+  music?: { file: string; envelope: [number, number][] } | null;
 };
 
 export const mix = (a: Box, b: Box, p: number): Box => ({ x: a.x + (b.x - a.x) * p, y: a.y + (b.y - a.y) * p, w: a.w + (b.w - a.w) * p, h: a.h + (b.h - a.h) * p, r: a.r + (b.r - a.r) * p });
@@ -106,6 +108,9 @@ export const Stage: React.FC<{ sb: Storyboard; config: StageConfig }> = ({ sb, c
       {sc.flatMap((s) => (config.pops?.[s.id] || []).filter((cue) => s.cues[cue] !== undefined).map((cue) => (
         <Sequence key={`p-${s.id}-${cue}`} from={f(s.start + s.cues[cue])} durationInFrames={f(0.2)}><Audio src={staticFile('sfx/pop.wav')} volume={vol.pop} /></Sequence>
       )))}
+      {sb.music && sb.music.envelope.length > 1 && (
+        <Audio src={staticFile(sb.music.file)} loop volume={(fr) => interpolate(fr / fps, sb.music!.envelope.map((k) => k[0]), sb.music!.envelope.map((k) => k[1]), { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })} />
+      )}
       {sb.sting && (
         <Sequence from={f(sb.sting.at)} durationInFrames={f(sb.sting.duration)}><Audio src={staticFile('sfx/sting.wav')} volume={vol.sting} /></Sequence>
       )}

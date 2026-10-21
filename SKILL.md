@@ -16,10 +16,12 @@ Usage: `/posthouse <post> [kind] [destination] [silent]`. `<post>` is a markdown
 
 | What | Where |
 |---|---|
-| The CLI | `node SKILL_DIR/bin/posthouse.mjs doctor \| new \| voices \| say \| sfx \| usage` |
+| The CLI | `node SKILL_DIR/bin/posthouse.mjs doctor \| new \| voices \| say \| asset \| sources \| check \| setup \| serve \| kit \| usage` |
 | Settings (voice provider, whisper, taste folder) | `SKILL_DIR/posthouse.config.json`, overridden by `posthouse.config.local.json` |
 | Taste: look, rules, corrections | `taste` in the config (default `SKILL_DIR/taste/`) |
 | API keys | only environment variables or `SKILL_DIR/.env`. Never ask the user to paste a key into chat; never write one to a file. |
+| Paid services (ElevenLabs) | only when the user asks in this conversation: `--final` for voice, `--source elevenlabs` for assets |
+| Sounds and music | `posthouse asset`, `posthouse sources`, `posthouse check` (`SKILL_DIR/docs/assets.md`) |
 | Each video | `SKILL_DIR/videos/<slug>/` (git-ignored). Never commit renders or MP4s to any repo. |
 | Building blocks | `SKILL_DIR/template/src/framework/` (Stage, Captions, theme, ui) and `SKILL_DIR/kit/components/` |
 | Stage API | `SKILL_DIR/docs/stage-api.md` |
@@ -45,9 +47,15 @@ Usage: `/posthouse <post> [kind] [destination] [silent]`. `<post>` is a markdown
 4. **Plan checkpoint (user).** One message: kind and why · estimated length · a table of scenes (what the voice
    says, the mechanism acted out on screen, the carrier into the next scene) · 2–3 hook options with a pick · any
    default being broken. Wait for yes or edits.
-5. **Voice.** Write `video/scenes.json`. `npm run voice -- --dry-run` first (paid providers show the cost), then
-   `npm run voice`. Unchanged scenes are cached; `-- --only <id> --force` re-voices one. Ask the user to listen
-   before you go on: a note on the voice is a taste note.
+5. **Voice.** Write `video/scenes.json`, then `npm run voice` (the free draft voice). Unchanged scenes are cached;
+   `-- --only <id> --force` re-voices one. Ask the user to listen before you go on: a note on the voice is a taste
+   note. **Never use a paid voice unless the user asks for it in this conversation.** When they do:
+   `npm run voice -- --final --dry-run` to show the cost, then `npm run voice -- --final`.
+   - **Sound and music.** The kit sounds are already in place. For a bed or a new sound:
+     `node SKILL_DIR/bin/posthouse.mjs asset music|sfx "prompt" [--seconds n] --name <name>`, run inside the
+     video folder (`--dry-run` shows which source it will use). Free sources only, unless the user asks for
+     ElevenLabs: then add `--source elevenlabs`. Point `"music"` in `scenes.json` at the bed. If the video is for
+     paid use, set `"commercial": true` in `scenes.json`.
 6. **Storyboard.** `npm run storyboard`. It fails loudly if a cue word isn't in what was said; fix the cue or the
    script, never the timings.
 7. **Build.** Replace `src/video/scenes/*`, `src/video/layout.ts` and `src/video/config.tsx` (Stage API). Each
@@ -57,8 +65,11 @@ Usage: `/posthouse <post> [kind] [destination] [silent]`. `<post>` is a markdown
    `ffmpeg -i renders/video.mp4 -vf "select='eq(n\,F1)+eq(n\,F2)…',scale=400:-1,tile=4x3" -frames:v 1 sheet.jpg`
    (F = seconds × fps from `src/storyboard.json`). Look: legible on a phone, nothing overlapping, carriers read as
    the same object, captions never cover content. Fact-check the script against step 1 once more.
-9. **Deliver.** `npm run render` → `renders/video.mp4`. Send it to the user. When they approve, copy it to
-   `final/<slug>.mp4` with a short `final/README.md` (source post, voice provider and settings, date).
+9. **Deliver.** `npm run render` → `renders/video.mp4`. Run `node SKILL_DIR/bin/posthouse.mjs check` and tell the
+   user anything non-commercial or needing credit. Send the video. When they approve, copy it to
+   `final/<slug>.mp4` with a short `final/README.md` (source post, voice provider and settings, `check` output,
+   date). If they want a polished version, offer the final voice (`--final`) and ElevenLabs music/SFX; spend
+   nothing until they say yes.
 10. **Feedback.** Sort each note. This video only → fix it, log nothing. Taste → label it (`script`, `visual`,
     `timing`, `style`, `voice`, `sound`) and propose one dated line for `<taste>/corrections.md`. Write it only
     after the user says yes. The same note twice → propose moving it into `rules.md`.

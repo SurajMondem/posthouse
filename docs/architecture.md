@@ -104,6 +104,29 @@ Every provider has the same shape (`lib/voice/index.mjs`):
 Caching: each scene's audio is keyed by `sha256(provider, settings, text, neighbouring text)`. Edit one scene and
 only that scene is re-voiced. Paid providers show the cost of exactly what will be generated.
 
+## The asset layer
+
+Sounds and music come through one resolver (`lib/assets/`): a request (`kind`, `prompt`, `seconds`, `name`) goes
+to the first source in `assets.<kind>.order` that can deliver it. Sources share one interface:
+
+```js
+{ name, kinds: ['sfx' | 'music'], paid?, license(opts) → { id, commercial },
+  available(req, ctx) → { ok, detail, fix }, generate(req, out, ctx) → { model, cost, credit } }
+```
+
+```mermaid
+flowchart LR
+  subgraph Node["lib/ (no dependencies)"]
+    R[resolver] --> F[files] & S[synth] & P[procedural] & O[openverse] & E[elevenlabs]
+  end
+  R -->|HTTP| A["ACE-Step server<br/>~/.cache/posthouse/plugins"]
+  R -->|"JSON over a process"| M["plugins/musicgen<br/>own venv"] & SA["plugins/stable-audio<br/>own venv"]
+  R --> C["cache/assets → public/&lt;kind&gt;/ → assets.lock.json"]
+```
+
+Paid sources are skipped unless the request names them. Results are cached by request hash; music is normalised
+to −18 LUFS and looped or faded to length. Full guide: [assets.md](assets.md).
+
 ## Why it's built this way
 
 The trade-offs, and the alternatives that were considered: [decisions.md](decisions.md).

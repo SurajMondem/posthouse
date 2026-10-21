@@ -5,45 +5,45 @@ voice always stays on top.
 
 | Sound | When it plays | Volume | File |
 |---|---|---|---|
-| whoosh | every camera move between scenes | 0.35 | `whoosh.wav` (0.7 s) |
-| tick | a carrier lands in the next scene | 0.6 | `tick.wav` (0.08 s) |
-| pop | on cue words you list in `pops` | 0.5 | `pop.wav` (0.18 s) |
-| sting | after the last word, over the closing card | 0.6 | `sting.wav` (3 s) |
+| whoosh | every camera move between scenes | 0.35 | `public/sfx/whoosh.wav` |
+| tick | a carrier lands in the next scene | 0.6 | `public/sfx/tick.wav` |
+| pop | on cue words you list in `pops` | 0.5 | `public/sfx/pop.wav` |
+| sting | after the last word, over the closing card | 0.6 | `public/sfx/sting.wav` |
+| music bed | under everything, ducked under the voice | `music.volume` | any file you set in `scenes.json` |
 
 Volumes are per video: `volume: { whoosh: 0.2 }` in `src/video/config.tsx`. Drop the sting with `"sting": false`
 in `video/scenes.json`.
 
 ## The default kit
 
-The four sounds in `kit/sfx/` are **synthesised from maths** by `lib/sfx.mjs` with ffmpeg: filtered noise under a
-swell (whoosh), a decaying sine (tick), a falling-pitch blip (pop), a four-note arpeggio (sting). No samples, so
-there's nothing to license or credit. Rebuild them (and copy them into the template) with:
+The four kit sounds are **synthesised from maths** by `lib/sfx.mjs` with ffmpeg: filtered noise under a swell
+(whoosh), a decaying sine (tick), a falling-pitch blip (pop), a four-note arpeggio (sting). No samples, so there's
+nothing to license or credit. Rebuild them with `node bin/posthouse.mjs kit`.
+
+## Replacing a sound
+
+Any sound in a video is just a file with a known name. Make or fetch a new one with the asset command and it
+replaces the old one for that video:
 
 ```bash
-node bin/posthouse.mjs sfx
+node ../../bin/posthouse.mjs asset sfx "airy cinematic whoosh" --name whoosh             # free sources first
+node ../../bin/posthouse.mjs asset sfx "airy cinematic whoosh" --name whoosh --source elevenlabs   # when you ask
 ```
 
-Tweak a sound by editing its ffmpeg expression in `lib/sfx.mjs` and rebuilding.
-
-## Your own sounds
-
-Replace any file in `kit/sfx/` and `template/public/sfx/` (videos you've already started keep their own copy in
-`public/sfx/`). Keep the names, use 48 kHz WAV, and normalise peaks to about −3 dB:
-
-```bash
-ffmpeg -i my-whoosh.mp3 -ar 48000 -af "loudnorm=I=-20:TP=-3" kit/sfx/whoosh.wav
-```
-
-Where to find more:
-
-| Source | Licence | Notes |
-|---|---|---|
-| Your own recordings | yours | A phone in a quiet room is enough for ticks and pops. |
-| [Kenney](https://kenney.nl/assets?q=audio) | CC0 | Good UI packs; no credit needed. |
-| [Freesound](https://freesound.org) | per file | Filter by CC0; read each file's licence. |
-| ElevenLabs sound effects | your plan's terms | `elevenlabs.soundEffect()` in `lib/voice/elevenlabs.mjs`; paid plans allow commercial use. |
+Where sounds can come from (your files, synth, Stable Audio Open, CC0 libraries, ElevenLabs) and how the choice is
+made: [assets.md](assets.md).
 
 ## Music
 
-Not built in yet (it's on the roadmap). To add a bed today, put a file in `public/` and add a Remotion `<Audio>` at
-a low volume (~0.08) in `src/Root.tsx`, under the stage.
+Make or fetch a bed, then point `scenes.json` at it:
+
+```bash
+node ../../bin/posthouse.mjs asset music "calm warm synth pad" --seconds 60 --name bed
+```
+
+```json
+"music": { "file": "music/bed.wav", "volume": 0.3, "duck": 0.4 }
+```
+
+Sources for music (ACE-Step, MusicGen, Stable Audio Open, procedural, CC0, ElevenLabs) and their licences:
+[assets.md](assets.md).

@@ -1,0 +1,20 @@
+{
+  "assets": {
+    "music/bed.wav": {
+      "kind": "music",
+      "file": "music/bed.wav",
+      "prompt": "calm warm synth pad",
+      "seconds": 52,
+      "source": "procedural",
+      "model": "procedural:calm",
+      "license": {
+        "id": "MIT (posthouse)",
+        "commercial": true
+      },
+      "credit": null,
+      "cost": "free",
+      "key": "ec17e29323b08751",
+      "at": "2026-10-21T04:05:00.727Z"
+    }
+  }
+}

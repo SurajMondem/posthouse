@@ -31,8 +31,10 @@ You give it a post (a blog article, project write-up, notes). You get back an MP
 - **No slides.** Scenes are stations on one world. The camera travels between them and an element from one scene
   morphs into the next, so the video never cuts.
 - **Captioned.** Burned-in captions that brighten word by word, so it works on mute.
-- **Sound as haptics.** A soft whoosh on every move, a tick when a shape lands, a pop on a reveal. Synthesised, so
-  there's nothing to license.
+- **Sound as haptics, music that ducks.** A soft whoosh on every move, a tick when a shape lands, a pop on a
+  reveal, and a music bed that dips under the voice.
+- **Assets from anywhere.** Your files, local models (ACE-Step, MusicGen, Stable Audio Open), CC0 libraries or
+  ElevenLabs. Free sources first; paid ones only when you ask. Every asset records its licence.
 - **Yours.** Your look and rules live in plain markdown (`taste/`). Your notes on each video become new rules.
 - **Agent-ready.** Ships as a Claude Code skill (`/posthouse`). Any coding agent can follow `SKILL.md`.
 
@@ -64,7 +66,15 @@ cd videos/my-first-video
 # write video/scenes.json (what the voice says, which words fire which visuals)
 npm run voice && npm run storyboard
 npm run studio           # live preview while you build the scenes in src/video/
+node ../../bin/posthouse.mjs asset music "calm warm synth pad" --seconds 60 --name bed   # optional bed
 npm run render
+```
+
+Draft for free, then polish once it's right:
+
+```bash
+npm run voice -- --final   # your ElevenLabs voice, only when you ask (cost shown first)
+npm run storyboard && npm run render
 ```
 
 The easy way is to let an agent direct it (see [Use with Claude Code](#use-with-claude-code)).
@@ -102,19 +112,41 @@ Deeper: [docs/architecture.md](docs/architecture.md).
 | Provider | Cost | Setup | Word timings | Best for |
 |---|---|---|---|---|
 | `say` | free | none (macOS only) | whisper or estimate | trying it out, drafts |
-| `kokoro` | free | `npm install --no-save kokoro-js` | whisper or estimate | free, offline, good quality |
+| `kokoro` | free | `node bin/posthouse.mjs setup kokoro --yes` | whisper or estimate | free, offline, good quality |
 | `command` | free | any TTS CLI (Piper, XTTS…) | whisper or estimate | your own local model |
-| `elevenlabs` | paid | API key in `.env` | exact, built in | the best voices, your own clone |
+| `elevenlabs` | paid | API key in `.env` | exact, built in | the final voiceover, your own clone |
 | `none` | free | none | reading pace | silent, captioned videos |
 
-`"provider": "auto"` (the default) uses `say` on macOS and `none` elsewhere. Pick yours in
-`posthouse.config.local.json`:
+There are two voices. The **draft** voice (`voice.provider`, free) is used every time. The **final** voice
+(`voice.final`, ElevenLabs) is used only with `npm run voice -- --final`. Both are cached, so switching never
+pays twice. Pick yours in `posthouse.config.local.json`:
 
 ```json
-{ "voice": { "provider": "kokoro", "kokoro": { "voice": "af_heart" } } }
+{ "voice": { "provider": "kokoro", "kokoro": { "voice": "af_heart" }, "elevenlabs": { "voiceId": "…" } } }
 ```
 
 Full setup for each, plus whisper.cpp: [docs/voices.md](docs/voices.md).
+
+## Sounds and music
+
+```bash
+node bin/posthouse.mjs sources                                   # what's ready on this machine
+node bin/posthouse.mjs asset music "uplifting synth, 100 bpm" --seconds 60 --name bed --video my-first-video
+node bin/posthouse.mjs check --video my-first-video --commercial # licences of everything in the video
+```
+
+| Source | Makes | Cost | Licence of the output |
+|---|---|---|---|
+| your files (`assets/`, `library/`) | both | free | yours |
+| synth / procedural (built in) | sfx / music | free | MIT |
+| [ACE-Step 1.5](https://github.com/ace-step/ACE-Step-1.5) (local) | music | free | MIT |
+| [MusicGen](https://github.com/facebookresearch/audiocraft) (local) | music | free | CC-BY-NC 4.0: non-commercial |
+| [Stable Audio Open](https://huggingface.co/stabilityai/stable-audio-open-1.0) (local) | both | free | Stability community licence |
+| [Openverse](https://openverse.org) CC0 search | both | free | CC0 |
+| ElevenLabs | both | paid, **only with `--source elevenlabs`** | plan terms |
+
+Local models install only when you ask (`node bin/posthouse.mjs setup acestep --yes`). Details:
+[docs/assets.md](docs/assets.md).
 
 ## Use with Claude Code
 
@@ -142,7 +174,8 @@ directly; [AGENTS.md](AGENTS.md) points them there.
 | Colours, fonts | `taste/look.md` + `template/src/framework/theme.ts` |
 | Rules the agent follows | `taste/rules.md` |
 | Corner mark | `chrome` in each video's `src/video/config.tsx` |
-| Sounds | replace files in `kit/sfx/` ([docs/sound.md](docs/sound.md)) |
+| Sounds, music | `posthouse asset …` or your own files ([docs/assets.md](docs/assets.md)) |
+| Which sources are tried, in what order | `assets.*.order` in `posthouse.config.local.json` |
 | Voice | `posthouse.config.local.json` ([docs/voices.md](docs/voices.md)) |
 | Taste kept in another folder (your notes) | `"taste": "/path/to/folder"` in `posthouse.config.local.json` |
 
@@ -153,8 +186,9 @@ All options: [docs/configuration.md](docs/configuration.md). Building scenes: [d
 ```
 posthouse/
 ├── SKILL.md                 the director's playbook (Claude Code skill)
-├── bin/posthouse.mjs        CLI: doctor · new · voices · say · sfx · usage
-├── lib/                     voice providers, word alignment, storyboard, sound kit
+├── bin/posthouse.mjs        CLI: doctor · new · voices · say · asset · sources · check · setup · serve · kit · usage
+├── lib/                     voice providers, asset resolver, word alignment, storyboard, sound kit
+├── plugins/                 optional local models (MusicGen, Stable Audio Open), installed on request
 ├── template/                the Remotion project every video starts from
 │   ├── src/framework/       the stage, captions, theme (shared, never per-video)
 │   ├── src/video/           this video's scenes and carriers (replace per video)
@@ -162,7 +196,8 @@ posthouse/
 ├── taste/                   look, rules, corrections (edit to make it yours)
 ├── kit/                     sound kit + reusable scene components
 ├── examples/                source posts for the examples
-├── docs/                    architecture, voices, sound, decisions, stage API
+├── docs/                    architecture, voices, assets, sound, decisions, stage API
+├── library/                 your reusable sounds and tracks (git-ignored)
 └── videos/                  your videos (git-ignored, never pushed)
 ```
 
@@ -171,18 +206,21 @@ posthouse/
 - **Remotion's licence.** posthouse is MIT. It renders with [Remotion](https://www.remotion.dev), which is free for
   individuals and small teams but needs a company licence for larger companies. Check
   [remotion.dev/license](https://www.remotion.dev/license) before using posthouse at work.
-- **Voice licences.** macOS system voices are licensed for personal, non-commercial use. ElevenLabs' free tier
-  needs attribution and doesn't allow commercial use; paid plans do. Kokoro is Apache-2.0. Check each Piper voice's
-  own licence.
-- **Your files stay local.** `videos/`, renders, `.env` and `posthouse.config.local.json` are git-ignored.
-- **Cost.** Everything is free unless you choose ElevenLabs, and then `npm run voice -- --dry-run` shows the credit
-  cost before anything is spent.
+- **Output licences.** macOS system voices and MusicGen are non-commercial. ElevenLabs' free tier needs
+  attribution; paid plans allow commercial use. Kokoro and ACE-Step are permissive. `posthouse check --commercial`
+  checks a whole video. Full list: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- **Your files stay local.** `videos/`, renders, `cache/`, `library/`, `.env` and `posthouse.config.local.json` are
+  git-ignored.
+- **Cost.** Free by default. ElevenLabs runs only when a command asks for it (`--final`, `--source elevenlabs`),
+  and `--dry-run` shows the credit cost first.
 
 ## Roadmap
 
+- A kit of building blocks for scenes (charts, device frames, cursor, code blocks), about 20% of a video, so the
+  other 80% stays creative
+- Style import from an existing design system (CSS variables, Tailwind config, a website)
 - Scene layouts proven for 1080×1920 (Shorts) and 1920×1080 (YouTube)
-- Background music bed with automatic ducking under the voice
-- More reusable scene components in `kit/components/`
+- Post / PDF / URL ingest and a one-command `make`
 - An automated frame check (overlaps, off-canvas text, empty stations)
 
 Ideas and pull requests welcome: [CONTRIBUTING.md](CONTRIBUTING.md).

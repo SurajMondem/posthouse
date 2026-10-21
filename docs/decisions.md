@@ -89,3 +89,41 @@ npm dependencies (Remotion, React, TypeScript).
 **Choice.** `videos/`, renders and every `*.mp4` are git-ignored.
 
 Renders are large and personal. Publish finished videos where they're watched, not in the repo.
+
+## 10. Paid services are intentional
+
+**Choice.** ElevenLabs (voice, SFX, music) runs only when a command names it: `npm run voice -- --final`,
+`--provider elevenlabs`, or `posthouse asset … --source elevenlabs`. A config file alone never triggers it, and it
+is never a fallback.
+
+| Option | Upside | Downside |
+|---|---|---|
+| **Only when asked** ✓ | Drafts cost $0; credits go to versions you already like | One extra flag for the final pass |
+| Use it whenever a key is set | Best quality every run | Burns credits on every draft and test |
+| Ask interactively each time | Explicit | Breaks scripted and agent runs |
+
+Takes and assets are cached per provider, so moving between draft and final never re-spends credits.
+
+## 11. Heavy models as plugins, not dependencies
+
+**Choice.** ACE-Step, MusicGen and Stable Audio Open install only on `posthouse setup <name>`, each in its own
+environment under `~/.cache/posthouse/`, and talk to posthouse over HTTP (ACE-Step) or a one-line JSON process
+boundary (Python plugins).
+
+The library stays dependency-free and the install stays small for people who never want local AI audio. Each
+model's Python stack (often pinned to different torch versions) can't break the others.
+
+## 12. Every asset records its licence
+
+**Choice.** Each voice take and asset stores its source, model and licence; `posthouse check` reads them, and a
+video marked commercial skips non-commercial sources.
+
+Open model licences differ a lot (MusicGen weights are non-commercial; ACE-Step is MIT; Stable Audio has a revenue
+cap). Tracking it per file is the only way a creator can answer "can I monetise this?" with confidence.
+
+## 13. Music normalised to one loudness
+
+**Choice.** Every music asset is normalised to −18 LUFS before use.
+
+Different sources produce tracks 10–20 dB apart. Normalising means `music.volume` behaves the same whatever made
+the track, so swapping a procedural draft bed for an ACE-Step or ElevenLabs track needs no re-mixing.

@@ -1,5 +1,5 @@
 {
-  "$comment": "THIS VIDEO: one entry per scene, in order. text = what the voice says (spell names the way they're said). cues = name → the spoken word that fires it (first match; numbers match as digits or words). captionPhrases = spoken phrase → how captions show it. The last scene may be overlay: true (drawn over the pulled-back world). Optional: voice = { provider, <provider>: { ...settings } } to override the repo config for this video; sting: false to drop the sign-off sound. The example is examples/hello-posthouse/post.md.",
+  "$comment": "THIS VIDEO: one entry per scene, in order. text = what the voice says (spell names the way they're said). cues = name → the spoken word that fires it (first match; numbers match as digits or words). captionPhrases = spoken phrase → how captions show it. The last scene may be overlay: true (drawn over the pulled-back world). Optional: voice = { provider, <provider>: { ...settings } } to override the repo config for this video (paid voices still need npm run voice -- --final); music = { file (in public/), volume, duck } for a bed that dips under the voice (make one with: node ../bin/posthouse.mjs asset music \"prompt\" --seconds N --name bed); commercial: true to check licences for paid use; sting: false to drop the sign-off sound. The example is examples/hello-posthouse/post.md.",
   "width": 1080,
   "height": 1080,
   "fps": 30,
@@ -36,5 +36,6 @@
       "overlay": true
     }
   ],
-  "captionPhrases": { "Post house": "posthouse" }
+  "captionPhrases": { "Post house": "posthouse" },
+  "music": { "file": "music/bed.wav", "volume": 0.3, "duck": 0.4 }
 }

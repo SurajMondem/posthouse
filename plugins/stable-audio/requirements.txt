@@ -1,0 +1,6 @@
+torch>=2.2
+diffusers>=0.30
+transformers>=4.44
+accelerate>=0.33
+soundfile>=0.12
+torchsde>=0.2.6

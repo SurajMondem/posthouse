@@ -20,6 +20,7 @@ npm run voice -- --provider none && npm run storyboard && npx tsc
 
 ## Good first contributions
 
+- **An asset source** (a new local model or library) in `lib/assets/sources.mjs`, with its licence declared.
 - **A voice provider.** One file in `lib/voice/`, one line in `lib/voice/index.mjs`, a section in
   `docs/voices.md`. The interface test in `tests/config.test.mjs` checks it automatically.
 - **A reusable scene component** in `kit/components/` (a chart, a gauge, a tap ripple), with a header comment

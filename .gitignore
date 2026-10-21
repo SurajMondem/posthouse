@@ -22,3 +22,7 @@ template/posthouse.json
 
 # Local models (whisper.cpp ggml files, voice models)
 models/
+
+# Local caches and your own asset library
+cache/
+library/

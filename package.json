@@ -1,6 +1,6 @@
 {
   "name": "posthouse",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Turn a written post into a narrated, captioned video: one continuous stage, a camera that travels between ideas, sound cues on the words. Remotion + any voice (ElevenLabs, local TTS, or none).",
   "type": "module",
   "license": "MIT",

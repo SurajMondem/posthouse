@@ -19,8 +19,8 @@ New rules come from your feedback through `corrections.md`: the same note twice 
    fill time.
 5. **Real facts only.** Every number and claim on screen or in the script traces to a line in the post. Nothing
    invented.
-6. **Nothing that costs money unless it's switched on.** Paid voices show their cost first (`npm run voice --
-   --dry-run`).
+6. **Nothing that costs money unless you ask.** Draft with free voices and sounds. Paid ones run only on request
+   (`npm run voice -- --final`, `--source elevenlabs`) and show their cost first (`--dry-run`).
 7. **One voice per channel.** Once you pick a voice, keep it across videos. A voice is part of who's talking.
 
 ## Defaults: break with a stated reason

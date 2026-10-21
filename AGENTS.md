@@ -6,5 +6,8 @@
   - `template/src/framework/` is shared by every video: nothing video-specific goes there.
   - Typecheck the template: `cd template && npm run voice -- --provider none && npm run storyboard && npx tsc`.
   - Never commit `.env`, `posthouse.config.local.json`, `videos/`, renders or any `*.mp4`.
+  - A new asset source = an entry in `lib/assets/sources.mjs` (+ `plugins/<name>/` for Python models) and a row in
+    `docs/assets.md`; the source-interface test covers it.
+  - Paid services (ElevenLabs) must stay opt-in per command: never make one a default or a fallback.
   - A new voice provider = one file in `lib/voice/`, one entry in `lib/voice/index.mjs`, a section in
     `docs/voices.md`, and a test in `tests/config.test.mjs` (the interface check covers it automatically).

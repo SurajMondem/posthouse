@@ -1,16 +1,17 @@
 // Voice: video/scenes.json text → narration/<id>.wav + narration/<id>.words.json (+ public/voice/<id>.wav).
-// Usage: npm run voice [-- --dry-run] [--only <scene id>] [--force] [--provider <name>]
+// Usage: npm run voice [-- --dry-run] [--only <scene id>] [--force] [--final] [--provider <name>]
 //   --dry-run   show which scenes would be voiced (and the cost, for paid providers); make nothing
 //   --only      voice one scene
 //   --force     re-voice even if the scene is cached
-//   --provider  override the provider for this run (elevenlabs | say | kokoro | command | none)
-// The provider comes from scenes.json "voice.provider", else the repo config. A scene is cached by a hash of its
-// text, its neighbours' text, the provider and its settings: unchanged scenes are free and instant.
+//   --final     use the final voice (config voice.final, ElevenLabs by default). Paid voices run only this way.
+//   --provider  use this provider for this run (elevenlabs | say | kokoro | command | none)
+// Drafts use the configured free provider. Every take is cached in narration/cache/ by a hash of its text, its
+// neighbours' text, the provider and its settings, so switching between draft and final never re-spends credits.
 import fs from 'node:fs';
 import path from 'node:path';
 import { arg, has, lib, readJson, REPO, VIDEO } from './repo.mjs';
 
-const { loadConfig, merge, providerName } = await lib('config.mjs');
+const { chooseVoice, loadConfig, merge } = await lib('config.mjs');
 const { loadProvider } = await lib('voice/index.mjs');
 const { wordsFor } = await lib('align.mjs');
 const { duration } = await lib('audio.mjs');
@@ -18,22 +19,23 @@ const { cacheKey } = await lib('words.mjs');
 
 const spec = readJson('video', 'scenes.json');
 const config = loadConfig(REPO);
-const name = providerName(config, arg('provider') ?? spec.voice?.provider);
+const { name, note } = chooseVoice(config, { explicit: arg('provider'), final: has('final'), wanted: spec.voice?.provider });
+if (note) console.log(`note: ${note}`);
 const provider = await loadProvider(name);
 const opts = merge(config.voice?.[name] ?? {}, spec.voice?.[name] ?? {});
 const narr = path.join(VIDEO, 'narration');
+const cache = path.join(narr, 'cache');
 const pub = path.join(VIDEO, 'public', 'voice');
-fs.mkdirSync(narr, { recursive: true });
-fs.mkdirSync(pub, { recursive: true });
+for (const d of [narr, cache, pub]) fs.mkdirSync(d, { recursive: true });
 
 const all = spec.scenes;
 const plan = all.map((s, i) => {
   const req = { text: s.text.trim(), previousText: all[i - 1]?.text.trim(), nextText: all[i + 1]?.text.trim() };
   const key = cacheKey({ provider: name, opts, ...req });
-  const metaFile = path.join(narr, `${s.id}.json`);
-  const meta = fs.existsSync(metaFile) ? JSON.parse(fs.readFileSync(metaFile, 'utf8')) : null;
-  const cached = meta?.key === key && fs.existsSync(path.join(narr, `${s.id}.words.json`)) && (!meta.audio || fs.existsSync(path.join(narr, `${s.id}.wav`)));
-  return { s, req, key, metaFile, cached };
+  const base = path.join(cache, key);
+  const meta = fs.existsSync(`${base}.json`) ? JSON.parse(fs.readFileSync(`${base}.json`, 'utf8')) : null;
+  const cached = !!meta && fs.existsSync(`${base}.words.json`) && (!meta.audio || fs.existsSync(`${base}.wav`));
+  return { s, req, key, base, cached };
 });
 const todo = plan.filter((p) => (!arg('only') || p.s.id === arg('only')) && (has('force') || !p.cached));
 
@@ -45,7 +47,7 @@ if (has('dry-run')) process.exit(0);
 if (est?.blocked) throw new Error(est.blocked);
 
 for (const p of todo) {
-  const out = path.join(narr, `${p.s.id}.wav`);
+  const out = `${p.base}.wav`;
   const r = await provider.speak({ ...p.req, out, opts });
   let words = r.words;
   let method = provider.words;
@@ -57,14 +59,24 @@ for (const p of todo) {
   } else {
     fs.rmSync(out, { force: true });
   }
-  fs.writeFileSync(path.join(narr, `${p.s.id}.words.json`), JSON.stringify(words, null, 2) + '\n');
-  fs.writeFileSync(p.metaFile, JSON.stringify({ key: p.key, provider: name, words: method, audio: !!r.wav, duration: dur, at: new Date().toISOString() }, null, 2) + '\n');
+  fs.writeFileSync(`${p.base}.words.json`, JSON.stringify(words, null, 2) + '\n');
+  fs.writeFileSync(`${p.base}.json`, JSON.stringify({ key: p.key, provider: name, words: method, audio: !!r.wav, duration: dur, license: provider.license?.(opts) ?? null, at: new Date().toISOString() }, null, 2) + '\n');
   console.log(`  ${p.s.id.padEnd(14)} ${dur.toFixed(2)} s · timings: ${method}`);
 }
+
+// Point each scene at its take for this provider.
 for (const p of plan) {
-  const wav = path.join(narr, `${p.s.id}.wav`);
+  if (!fs.existsSync(`${p.base}.json`)) continue; // --only skipped it and it was never voiced with this provider
+  const meta = JSON.parse(fs.readFileSync(`${p.base}.json`, 'utf8'));
+  fs.copyFileSync(`${p.base}.words.json`, path.join(narr, `${p.s.id}.words.json`));
+  fs.writeFileSync(path.join(narr, `${p.s.id}.json`), JSON.stringify({ ...meta, scene: p.s.id }, null, 2) + '\n');
   const dest = path.join(pub, `${p.s.id}.wav`);
-  if (fs.existsSync(wav)) fs.copyFileSync(wav, dest);
-  else fs.rmSync(dest, { force: true });
+  if (meta.audio) {
+    fs.copyFileSync(`${p.base}.wav`, path.join(narr, `${p.s.id}.wav`));
+    fs.copyFileSync(`${p.base}.wav`, dest);
+  } else {
+    fs.rmSync(path.join(narr, `${p.s.id}.wav`), { force: true });
+    fs.rmSync(dest, { force: true });
+  }
 }
 console.log('voice: done. Listen (narration/*.wav), then: npm run storyboard');
