@@ -11,6 +11,8 @@ import json
 import soundfile as sf
 import torch
 from diffusers import StableAudioPipeline
+from diffusers.schedulers import scheduling_cosine_dpmsolver_multistep as cosine
+from huggingface_hub import snapshot_download
 
 
 def device():
@@ -19,6 +21,24 @@ def device():
     if torch.backends.mps.is_available():
         return "mps"
     return "cpu"
+
+
+class GaussianNoise:
+    """Seeded i.i.d. Gaussian noise for the SDE solver steps (k-diffusion's default noise sampler)."""
+
+    def __init__(self, x, sigma_min=None, sigma_max=None, seed=None, **_):
+        seed = seed[0] if isinstance(seed, list) else seed
+        self.gen = torch.Generator("cpu").manual_seed(seed if seed is not None else 0)
+        self.shape = x.shape
+
+    def __call__(self, sigma, sigma_next):
+        return torch.randn(self.shape, generator=self.gen, dtype=torch.float32)
+
+
+def use_gaussian_noise():
+    # The scheduler's torchsde Brownian tree recurses without end on MPS/CPU float32 (RecursionError).
+    # With a fixed step count, plain Gaussian noise is the standard choice and gives equivalent results.
+    cosine.BrownianTreeNoiseSampler = GaussianNoise
 
 
 def main():
@@ -33,7 +53,11 @@ def main():
 
     dev = device()
     dtype = torch.float16 if dev == "cuda" else torch.float32
-    pipe = StableAudioPipeline.from_pretrained(a.model, torch_dtype=dtype).to(dev)
+    # The repo also holds a 4.5 GB single-file checkpoint for stable-audio-tools; diffusers never reads it.
+    local = snapshot_download(a.model, ignore_patterns=["model.safetensors", "*.ckpt", "model_config.json"])
+    pipe = StableAudioPipeline.from_pretrained(local, torch_dtype=dtype).to(dev)
+    if dev != "cuda":
+        use_gaussian_noise()
     gen = torch.Generator("cpu").manual_seed(a.seed)
     audio = pipe(
         a.prompt,

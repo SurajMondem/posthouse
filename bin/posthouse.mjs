@@ -165,7 +165,7 @@ function check() {
 
 const SETUP = {
   musicgen: { what: 'a Python venv with torch + transformers (~1 GB) at ~/.cache/posthouse/venvs/musicgen; the model (facebook/musicgen-small, ~1.2 GB) downloads on first use', licence: 'weights CC-BY-NC 4.0: non-commercial', run: () => installPython('musicgen') },
-  'stable-audio': { what: 'a Python venv with torch + diffusers (~1.5 GB) at ~/.cache/posthouse/venvs/stable-audio; the model (~4.8 GB) downloads on first use after you accept its terms on Hugging Face and run huggingface-cli login', licence: 'Stability AI Community License', run: () => installPython('stable-audio') },
+  'stable-audio': { what: 'a Python venv with torch + diffusers (~1.5 GB) at ~/.cache/posthouse/venvs/stable-audio; the model (~5 GB) downloads on first use after you accept its terms on Hugging Face and log in (hf auth login)', licence: 'Stability AI Community License', run: () => installPython('stable-audio') },
   acestep: {
     what: `a clone of github.com/ace-step/ACE-Step-1.5 at ${ACE_DIR} plus its uv environment (several GB); models download on first start`,
     licence: 'MIT',

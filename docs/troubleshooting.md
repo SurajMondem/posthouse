@@ -20,7 +20,7 @@ Start with `node bin/posthouse.mjs doctor`. It checks each piece and prints the 
 | `no source could make this music/sfx` | Nothing in the order can deliver (lists why for each) | Install a model (`posthouse setup …`), add a file to `assets/`, or reorder `assets.*.order` |
 | `no ACE-Step server at http://127.0.0.1:8001` | The server isn't running | `node bin/posthouse.mjs serve acestep` in another terminal (first start downloads models) |
 | `musicgen is not set up` / `stable-audio is not set up` | Optional model not installed | `node bin/posthouse.mjs setup <name> --yes` |
-| Stable Audio: `401` / `gated repo` | Model terms not accepted | Accept them on the model's Hugging Face page, then `huggingface-cli login` |
+| Stable Audio: `401` / `403` / `gated repo` | 401: not logged in. 403: logged in, terms not accepted | `hf auth login`; accept the terms on the model page |
 | `check --commercial` fails | A non-commercial voice (macOS `say`) or track (MusicGen) is in the video | Re-voice with another provider; regenerate the asset with `"commercial": true` in `scenes.json` |
 | Music too loud or quiet | `music.volume` | 0.2–0.4 suits most beds; `duck` sets how far it dips under speech |
 | Render is slow | High resolution / long video | `npm run render -- --concurrency=8`, or render a still: `npm run still -- --frame=120` |

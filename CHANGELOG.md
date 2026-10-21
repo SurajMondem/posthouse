@@ -19,6 +19,9 @@ The open asset layer.
 - Tested on an M1 Pro (16 GB): MusicGen ✓, Openverse ✓, synth/procedural ✓. ACE-Step runs out of memory on 16 GB
   machines; posthouse now refuses ACE-Step requests under 20 GB free disk, serves it without its optional LM, and
   connects over IPv4 (`127.0.0.1`, not `localhost`). See `docs/assets.md` § What's been tested.
+- Stable Audio Open tested on Apple Silicon ✓. The plugin skips the repo's unused 4.5 GB single-file checkpoint,
+  replaces the sampler's torchsde Brownian noise with seeded Gaussian noise off CUDA (it hit a RecursionError on
+  MPS), and finds Hugging Face logins saved by older clients (`~/.huggingface/token`).
 
 ## 0.1.0 (2026-10-20)
 
